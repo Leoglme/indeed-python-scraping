@@ -13,8 +13,8 @@ def extract(start):
 def transform(soup):
     jobs = soup.find_all('div', class_ = 'job_seen_beacon')
     for job in jobs:
-        title = job.find('a').text
+        title = job.find('a').text.strip()
         print(title)
 
 c = extract(0)
-print(transform(c))
+transform(c)
