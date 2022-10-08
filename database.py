@@ -12,6 +12,7 @@ class Database:
         self.cursor.close()
         self.cnx.close()
 
+
     def add_job_type(self, label: str, score: int):
         request = "INSERT INTO job_types ""(label, score)" "VALUES (%s, %s)"
         try:

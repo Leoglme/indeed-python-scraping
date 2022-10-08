@@ -10,15 +10,15 @@ class IndeedTypesJob:
     types_job = []
 
     def __init__(self):
-        for letter in alphabet:
+        for letter in self.alphabet:
             self.get_types_job(letter)
+        self.save_jobs()
 
     def get_types_job(self, letter: str):
         url = f'https://autocomplete.indeed.com/api/v0/suggestions/what?country=FR&language=fr&count=100000000' \
               f'&formatted=1&query={letter}&useEachWord=false&page=serp&showAlternateSuggestions=false&merged=true&rich=true '
         r = requests.get(url)
-        self.types_job = json.loads(r.content)
-        self.save_jobs()
+        self.types_job += json.loads(r.content)
 
     def save_jobs(self):
         for type_job in self.types_job:
