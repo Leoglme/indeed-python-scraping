@@ -1,3 +1,5 @@
+import json
+import time
 import requests
 from bs4 import BeautifulSoup
 import re
@@ -6,7 +8,7 @@ jobs = []
 
 
 def extract(start):
-    url = f'http://fr.indeed.com/jobs?q=poids+lourd&l=Iffendic+%2835%29&vjk=32347f99399e3c06&start={start}&sort=date'
+    url = f'http://fr.indeed.com/emplois?q=d%C3%A9veloppeur&l=Paris&radius=0&fromage=1&vjk=8651b9be54b7b5ef&start={start}&sort=date'
     agent = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 '
                       'Safari/537.36 Vivaldi/5.3.2679.70.'}
@@ -38,11 +40,25 @@ def transform(soup, start):
             'description': description
         })
 
-    if (per_page * current_page) < max_results:
-        print(f'Get {per_page} job of page {current_page} => START: {start + 10}')
+    print({
+        "per_page": per_page,
+        "current_page": current_page,
+        "start": start + 10,
+        "max_results": max_results,
+        "number_jobs": len(jobs),
+    })
+
+    if len(jobs) <= max_results:
         extract(start + 10)
 
 
-extract(0)
+def run_hour():
+    extract(0)
+    with open('indeed.json', 'w', encoding='utf-8') as f:
+        json.dump(jobs, f, ensure_ascii=False, indent=4)
+    jobs.clear()
+    time.sleep(10)
+    run_hour()
 
-print(len(jobs))
+
+run_hour()
