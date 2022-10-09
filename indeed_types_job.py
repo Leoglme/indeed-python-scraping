@@ -21,6 +21,7 @@ class IndeedTypesJob:
         self.types_job += json.loads(r.content)
 
     def save_jobs(self):
+        self.database.delete_all_job_types()
         for type_job in self.types_job:
             self.database.add_job_type(type_job["suggestion"], type_job["payload"]["score"])
         self.database.close_connect()
