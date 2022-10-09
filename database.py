@@ -20,6 +20,19 @@ class Database:
             r.extend(label)
         return r
 
+    def get_places(self):
+        places = []
+        self.cursor.execute("SELECT name FROM regions")
+        names = self.cursor.fetchall()
+        for name in names:
+            places.extend(name)
+
+        self.cursor.execute("SELECT name FROM departments")
+        names = self.cursor.fetchall()
+        for name in names:
+            places.extend(name)
+        return places
+
     def delete_all_job(self):
         self.cursor.execute("TRUNCATE TABLE advertisements")
 
@@ -46,8 +59,8 @@ class Database:
         except:
             pass
 
-    def add_job(self, title: str, description: str, salary: int, place: str, indeed_id: str):
+    def add_job(self, job):
         request = ("INSERT INTO advertisements ""(title, description, salary, place, working_time, owner_id, indeed_id)"
                    " VALUES (%s, %s, %s, %s, %s, %s, %s)")
-        self.cursor.execute(request, (title, description, salary, place, 39, 1, indeed_id))
+        self.cursor.execute(request, (job['title'], job['description'], job['salary'], job['place'], 39, 1, job['indeed_id']))
         self.cnx.commit()
