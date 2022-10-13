@@ -15,8 +15,13 @@ class IndeedJobs:
     current_page = 0
     number_jobs_added = 0
     jobs = []
+    agent = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) '
+                      'Chrome/104.0.0.0 '
+                      'Safari/537.36 Vivaldi/5.3.2679.70.'}
 
     def __init__(self, cities: []):
+        database.delete_all_job()
         self.stop = False
         print('starting...')
         init()
@@ -50,14 +55,23 @@ class IndeedJobs:
 
         for job_card in job_cards:
             title = self.get_job_tile(job_card)
-            description = self.get_job_description(job_card)
+            short_description = self.get_job_short_description(job_card)
             salary = self.get_job_salary(job_card)
             place = self.get_job_place(job_card)
             indeed_id = self.get_job_indeed_id(job_card)
 
+            # Detail Job
+            html_job = self.get_html_details_job(indeed_id)
+            description = self.get_job_description(html_job)
+            categories = self.get_job_categories(html_job)
+            advantages = self.get_job_advantages(html_job)
+
             job = {
                 'title': title,
+                'short_description': short_description,
                 'description': description,
+                'categories': categories,
+                'advantages': advantages,
                 'salary': salary,
                 'place': place,
                 'indeed_id': indeed_id
@@ -86,11 +100,8 @@ class IndeedJobs:
     def get_html_jobs(self, city: str):
         self.url = f'http://fr.indeed.com/jobs?q=&l={city}&sort=date&fromage=1&start={self.start}'
         cprint(self.url, 'cyan')
-        agent = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) '
-                          'Chrome/104.0.0.0 '
-                          'Safari/537.36 Vivaldi/5.3.2679.70.'}
-        r = requests.get(self.url, headers=agent)
+
+        r = requests.get(self.url, headers=self.agent)
         return BeautifulSoup(r.content, 'html.parser')
 
     def get_current_page(self, html_jobs):
@@ -114,7 +125,7 @@ class IndeedJobs:
         return job_card.find('a').text.strip()
 
     @staticmethod
-    def get_job_description(job_card):
+    def get_job_short_description(job_card):
         return job_card.find('div', class_='job-snippet').text.strip()
 
     @staticmethod
@@ -144,8 +155,40 @@ class IndeedJobs:
         except:
             self.stop_search()
 
-    def get_html_job(self):
-        pass
+    def get_html_details_job(self, indeed_id: str):
+        try:
+            # url = f'http://fr.indeed.com/viewjob?jk={indeed_id}'
+            url = f'http://fr.indeed.com/viewjob?jk=ab10d45865738efa'
+            cprint(url, 'magenta')
+
+            r = requests.get(url, headers=self.agent)
+            return BeautifulSoup(r.content, 'html.parser')
+        except:
+            pass
+
+    @staticmethod
+    def get_job_description(html_job):
+        try:
+            return html_job.find('div', id='jobDescriptionText').text.strip()
+        except:
+            pass
+
+    @staticmethod
+    def get_job_categories(html_job):
+        try:
+            return html_job.find('div', class_='jobsearch-ReqAndQualSection-item--closedBullets').text.strip()
+        except:
+            pass
+
+    @staticmethod
+    def get_job_advantages(html_job):
+        try:
+            advantages = html_job.find_all('div', class_='ecydgvn1')
+            for advantage in advantages:
+                database.add_advantage(advantage.text.strip())
+            return html_job.find('div', id='benefits').text.strip()
+        except:
+            pass
 
     def save_job(self, job):
         try:
@@ -157,3 +200,5 @@ class IndeedJobs:
 c = database.get_places()
 indeed_jobs = IndeedJobs(c)
 indeed_jobs.run()
+
+# company_id

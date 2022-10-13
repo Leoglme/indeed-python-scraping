@@ -1,5 +1,4 @@
 import requests
-import json
 from database import Database
 from bs4 import BeautifulSoup
 import re
