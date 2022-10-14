@@ -31,6 +31,9 @@ class Database:
     def delete_advantage_advertisements(self):
         self.cursor.execute("TRUNCATE TABLE advantage_advertisements")
 
+    def delete_job_types(self):
+        self.cursor.execute("TRUNCATE TABLE job_types")
+
     def delete_all_job(self):
         self.cursor.execute("SELECT id FROM advertisements")
         ids = self.cursor.fetchall()
@@ -41,6 +44,7 @@ class Database:
             self.cnx.commit()
             cprint(f'Delete advertisement {id}', 'red')
         self.delete_advantage_advertisements()
+        self.delete_job_types()
 
     def delete_all_job_suggestions(self):
         self.cursor.execute("TRUNCATE TABLE job_suggestions")
@@ -86,6 +90,13 @@ class Database:
         else:
             pass
 
+    def get_type(self, job_type: str):
+        if job_type is not None:
+            self.cursor.execute("SELECT id FROM types WHERE label = '" + job_type + "'")
+            return self.cursor.fetchone()
+        else:
+            pass
+
     def add_advantage(self, advantage: str):
         res = self.get_advantage(advantage)
         if res is None:
@@ -101,6 +112,17 @@ class Database:
                 request = "INSERT INTO advantage_advertisements ""(avantage_id, advertisement_id)" "VALUES (%s, %s)"
                 for advantage_id in advantage_ids:
                     self.cursor.execute(request, (advantage_id, job_id))
+            self.cnx.commit()
+        except:
+            pass
+
+    def add_job_types(self, job_types: [], job_id: int):
+        try:
+            for job_type in job_types:
+                type_ids = self.get_type(job_type)
+                request = "INSERT INTO job_types ""(type_id, advertisement_id)" "VALUES (%s, %s)"
+                for type_id in type_ids:
+                    self.cursor.execute(request, (type_id, job_id))
             self.cnx.commit()
         except:
             pass

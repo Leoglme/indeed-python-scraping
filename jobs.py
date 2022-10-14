@@ -65,13 +65,13 @@ class IndeedJobs:
             description = self.get_job_description(html_job)
             qualifications = self.get_job_qualifications(html_job)
             advantages = self.get_job_advantages(html_job)
+            job_types = self.get_job_types(html_job)
 
             job = {
                 'title': title,
                 'short_description': short_description,
                 'description': description,
                 'qualifications': qualifications,
-                'advantages': advantages,
                 'salary': salary,
                 'place': place,
                 'indeed_id': indeed_id
@@ -82,6 +82,7 @@ class IndeedJobs:
             job_id = self.save_job(job)
 
             database.add_advantage_advertisements(advantages, job_id)
+            database.add_job_types(job_types, job_id)
 
             self.number_jobs_added += 1
 
@@ -160,11 +161,25 @@ class IndeedJobs:
     def get_html_details_job(self, indeed_id: str):
         try:
             # url = f'http://fr.indeed.com/viewjob?jk={indeed_id}'
-            url = f'http://fr.indeed.com/viewjob?jk=ab10d45865738efa'
+            url = f'http://fr.indeed.com/viewjob?jk=c7ec4978f5b1a60a'
             cprint(url, 'magenta')
 
             r = requests.get(url, headers=self.agent)
             return BeautifulSoup(r.content, 'html.parser')
+        except:
+            pass
+
+    @staticmethod
+    def get_job_types(html_job):
+        try:
+            job_details_section = html_job.find('div', id='jobDetailsSection')
+            children = job_details_section.findChildren("div", recursive=True)
+            childs = []
+            for child in children:
+                childs.append(child.text)
+            cut_index = childs.index("Type de contrat") - 1
+
+            return childs[-cut_index:]
         except:
             pass
 
