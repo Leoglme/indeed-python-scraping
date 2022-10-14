@@ -28,6 +28,9 @@ class Database:
             places.extend(name)
         return places
 
+    def delete_advantage_advertisements(self):
+        self.cursor.execute("TRUNCATE TABLE advantage_advertisements")
+
     def delete_all_job(self):
         self.cursor.execute("SELECT id FROM advertisements")
         ids = self.cursor.fetchall()
@@ -37,6 +40,7 @@ class Database:
             self.cursor.execute(request, id)
             self.cnx.commit()
             cprint(f'Delete advertisement {id}', 'red')
+        self.delete_advantage_advertisements()
 
     def delete_all_job_suggestions(self):
         self.cursor.execute("TRUNCATE TABLE job_suggestions")
@@ -75,30 +79,48 @@ class Database:
             self.cursor.execute(request, (social,))
             self.cnx.commit()
 
-    def add_advantage(self, advantage: str):
+    def get_advantage(self, advantage: str):
         if advantage is not None:
             self.cursor.execute("SELECT id FROM advantages WHERE label = '" + advantage + "'")
-            res = self.cursor.fetchone()
-            if res is None:
-                request = "INSERT INTO advantages ""(label)" "VALUES (%s)"
-                print(f'The advantage {advantage} has been saved in the database')
-                self.cursor.execute(request, (advantage,))
-                self.cnx.commit()
+            return self.cursor.fetchone()
+        else:
+            pass
+
+    def add_advantage(self, advantage: str):
+        res = self.get_advantage(advantage)
+        if res is None:
+            request = "INSERT INTO advantages ""(label)" "VALUES (%s)"
+            print(f'The advantage {advantage} has been saved in the database')
+            self.cursor.execute(request, (advantage,))
+            self.cnx.commit()
+
+    def add_advantage_advertisements(self, advantages: [], job_id: int):
+        try:
+            for advantage in advantages:
+                advantage_ids = self.get_advantage(advantage)
+                request = "INSERT INTO advantage_advertisements ""(avantage_id, advertisement_id)" "VALUES (%s, %s)"
+                for advantage_id in advantage_ids:
+                    self.cursor.execute(request, (advantage_id, job_id))
+            self.cnx.commit()
+        except:
+            pass
 
     def add_job(self, job):
         request = (
-            "INSERT INTO advertisements ""(title, description, short_description, salary, place, working_time, indeed_id, company_id)"
+            "INSERT INTO advertisements ""(title, description, short_description, salary, qualifications, place, indeed_id, company_id)"
             " VALUES (%s, %s, %s, %s, %s, %s, %s, %s)")
+
         self.cursor.execute(request,
                             (
                                 job['title'],
                                 job['description'],
                                 job['short_description'],
                                 job['salary'],
+                                job['qualifications'],
                                 job['place'],
-                                39,
                                 job['indeed_id'],
                                 5
                             ))
 
         self.cnx.commit()
+        return self.cursor.lastrowid

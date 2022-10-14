@@ -63,14 +63,14 @@ class IndeedJobs:
             # Detail Job
             html_job = self.get_html_details_job(indeed_id)
             description = self.get_job_description(html_job)
-            categories = self.get_job_categories(html_job)
+            qualifications = self.get_job_qualifications(html_job)
             advantages = self.get_job_advantages(html_job)
 
             job = {
                 'title': title,
                 'short_description': short_description,
                 'description': description,
-                'categories': categories,
+                'qualifications': qualifications,
                 'advantages': advantages,
                 'salary': salary,
                 'place': place,
@@ -79,7 +79,9 @@ class IndeedJobs:
 
             self.jobs.append(job)
 
-            self.save_job(job)
+            job_id = self.save_job(job)
+
+            database.add_advantage_advertisements(advantages, job_id)
 
             self.number_jobs_added += 1
 
@@ -174,7 +176,7 @@ class IndeedJobs:
             pass
 
     @staticmethod
-    def get_job_categories(html_job):
+    def get_job_qualifications(html_job):
         try:
             return html_job.find('div', class_='jobsearch-ReqAndQualSection-item--closedBullets').text.strip()
         except:
@@ -183,16 +185,18 @@ class IndeedJobs:
     @staticmethod
     def get_job_advantages(html_job):
         try:
+            ads = []
             advantages = html_job.find_all('div', class_='ecydgvn1')
             for advantage in advantages:
                 database.add_advantage(advantage.text.strip())
-            return html_job.find('div', id='benefits').text.strip()
+                ads.append(advantage.text.strip())
+            return ads
         except:
             pass
 
     def save_job(self, job):
         try:
-            database.add_job(job)
+            return database.add_job(job)
         except:
             cprint(f'Id {job["indeed_id"]} already exist', 'red')
 
