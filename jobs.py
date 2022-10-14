@@ -23,7 +23,7 @@ class IndeedJobs:
                       'Safari/537.36 Vivaldi/5.3.2679.70.'}
 
     def __init__(self, cities: []):
-        database.delete_all_job()
+        # database.delete_all_job()
         self.stop = False
         print('starting...')
         init()
@@ -69,9 +69,26 @@ class IndeedJobs:
             advantages = self.get_job_advantages(html_job)
             job_types = self.get_job_types(html_job)
             company_url = self.get_company_url(html_job)
+            company_name = self.get_company_name(html_job)
 
-            create_company = CreateCompany(company_url)
-            company_id = create_company.company_id
+            company_id = None
+
+            if company_url is not None:
+                create_company = CreateCompany(company_url, company_name)
+                company_id = create_company.company_id
+
+            if company_id is None:
+                company = {
+                    'logo': None,
+                    'name': company_name,
+                    'sector_id': None,
+                    'description': None,
+                    'place': place,
+                    'founded_at': None,
+                    'short_description': None
+                }
+
+                company_id = database.add_company(company)
 
             job = {
                 'title': title,
@@ -85,10 +102,10 @@ class IndeedJobs:
             }
 
             self.jobs.append(job)
-
             job_id = self.save_job(job)
 
             database.add_advantage_advertisements(advantages, job_id)
+
             database.add_job_types(job_types, job_id)
 
             self.number_jobs_added += 1
@@ -185,6 +202,14 @@ class IndeedJobs:
             pass
 
     @staticmethod
+    def get_company_name(html_job):
+        try:
+            r = html_job.find_all('div', class_='jobsearch-InlineCompanyRating-companyHeader')
+            return r[1].text.replace(' ', '-')
+        except:
+            pass
+
+    @staticmethod
     def get_job_types(html_job):
         try:
             job_details_section = html_job.find('div', id='jobDetailsSection')
@@ -224,7 +249,8 @@ class IndeedJobs:
         except:
             pass
 
-    def save_job(self, job):
+    @staticmethod
+    def save_job(job):
         try:
             return database.add_job(job)
         except:

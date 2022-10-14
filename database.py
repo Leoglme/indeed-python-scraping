@@ -31,6 +31,38 @@ class Database:
     def delete_advantage_advertisements(self):
         self.cursor.execute("TRUNCATE TABLE advantage_advertisements")
 
+    def delete_sectors(self):
+        self.cursor.execute("SELECT id FROM sectors")
+        ids = self.cursor.fetchall()
+
+        for id in ids:
+            request = "DELETE FROM sectors WHERE (%s)"
+            self.cursor.execute(request, id)
+            self.cnx.commit()
+            cprint(f'Delete sector {id[0]}', 'red')
+
+    def delete_companies(self):
+        self.cursor.execute("SELECT id FROM companies")
+        ids = self.cursor.fetchall()
+
+        for id in ids:
+            request = "DELETE FROM companies WHERE (%s)"
+            self.cursor.execute(request, id)
+            self.cnx.commit()
+            cprint(f'Delete company {id[0]}', 'red')
+        self.delete_social_companies()
+        self.delete_sectors()
+
+    def delete_social_companies(self):
+        self.cursor.execute("SELECT id FROM social_companies")
+        ids = self.cursor.fetchall()
+
+        for id in ids:
+            request = "DELETE FROM social_companies WHERE (%s)"
+            self.cursor.execute(request, id)
+            self.cnx.commit()
+            cprint(f'Delete social_companies {id[0]}', 'red')
+
     def delete_job_types(self):
         self.cursor.execute("TRUNCATE TABLE job_types")
 
@@ -42,9 +74,10 @@ class Database:
             request = "DELETE FROM advertisements WHERE (%s)"
             self.cursor.execute(request, id)
             self.cnx.commit()
-            cprint(f'Delete advertisement {id}', 'red')
+            cprint(f'Delete advertisement {id[0]}', 'red')
         self.delete_advantage_advertisements()
         self.delete_job_types()
+        self.delete_companies()
 
     def delete_all_job_suggestions(self):
         self.cursor.execute("TRUNCATE TABLE job_suggestions")
@@ -145,16 +178,17 @@ class Database:
             pass
 
     def add_sector(self, sector: str):
-        res = self.get_sector(sector)
-
-        if res is None:
-            request = "INSERT INTO sectors ""(label)" "VALUES (%s)"
-            print(f'The sector {sector} has been saved in the database')
-            self.cursor.execute(request, (sector,))
-            self.cnx.commit()
-            return self.cursor.lastrowid
-        else:
-            return res
+        if sector is not None:
+            res = self.get_sector(sector)
+            if res is None:
+                request = "INSERT INTO sectors ""(label)" "VALUES (%s)"
+                print(f'The sector {sector} has been saved in the database')
+                self.cursor.execute(request, (sector,))
+                self.cnx.commit()
+                return self.cursor.lastrowid
+            else:
+                return res
+        return None
 
     def get_social_id(self, key: str):
         if key is not None:
@@ -190,6 +224,8 @@ class Database:
                                 job['company_id']
                             ))
 
+        cprint('OK', 'magenta')
+
         self.cnx.commit()
         return self.cursor.lastrowid
 
@@ -197,6 +233,8 @@ class Database:
         request = (
             "INSERT INTO companies ""(logo, name, sector_id, description, place, founded_at, short_description)"
             " VALUES (%s, %s, %s, %s, %s, %s, %s)")
+
+        print(company)
 
         self.cursor.execute(request,
                             (
