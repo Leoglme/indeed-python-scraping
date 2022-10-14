@@ -5,7 +5,7 @@ from colorama import init
 
 class Database:
     cnx = mysql.connector.connect(user='root', password="", database='job_board')
-    cursor = cnx.cursor()
+    cursor = cnx.cursor(buffered=True)
 
     def __init__(self):
         init()
@@ -83,16 +83,23 @@ class Database:
             self.cursor.execute(request, (social,))
             self.cnx.commit()
 
+    def get_company(self, company_name):
+        if company_name is not None:
+            self.cursor.execute('SELECT id FROM companies WHERE name = "' + company_name + '"')
+            return self.cursor.fetchone()
+        else:
+            pass
+
     def get_advantage(self, advantage: str):
         if advantage is not None:
-            self.cursor.execute("SELECT id FROM advantages WHERE label = '" + advantage + "'")
+            self.cursor.execute('SELECT id FROM advantages WHERE label = "' + advantage + '"')
             return self.cursor.fetchone()
         else:
             pass
 
     def get_type(self, job_type: str):
         if job_type is not None:
-            self.cursor.execute("SELECT id FROM types WHERE label = '" + job_type + "'")
+            self.cursor.execute('SELECT id FROM types WHERE label = "' + job_type + '"')
             return self.cursor.fetchone()
         else:
             pass
@@ -127,6 +134,45 @@ class Database:
         except:
             pass
 
+    def get_sector(self, sector: str):
+        if sector is not None:
+            self.cursor.execute('SELECT id FROM sectors WHERE label = "' + sector + '"')
+            res = self.cursor.fetchone()
+            if res is not None:
+                res = res[0]
+            return res
+        else:
+            pass
+
+    def add_sector(self, sector: str):
+        res = self.get_sector(sector)
+
+        if res is None:
+            request = "INSERT INTO sectors ""(label)" "VALUES (%s)"
+            print(f'The sector {sector} has been saved in the database')
+            self.cursor.execute(request, (sector,))
+            self.cnx.commit()
+            return self.cursor.lastrowid
+        else:
+            return res
+
+    def get_social_id(self, key: str):
+        if key is not None:
+            self.cursor.execute('SELECT id FROM socials WHERE name = "' + key + '"')
+            return self.cursor.fetchone()
+        else:
+            pass
+
+    def add_company_website(self, website: str, company_id: int):
+        try:
+            social_id = self.get_social_id('website')
+            request = "INSERT INTO social_companies ""(social_id, company_id, url)" "VALUES (%s, %s, %s)"
+            for id in social_id:
+                self.cursor.execute(request, (id, company_id, website))
+            self.cnx.commit()
+        except:
+            pass
+
     def add_job(self, job):
         request = (
             "INSERT INTO advertisements ""(title, description, short_description, salary, qualifications, place, indeed_id, company_id)"
@@ -142,6 +188,25 @@ class Database:
                                 job['place'],
                                 job['indeed_id'],
                                 5
+                            ))
+
+        self.cnx.commit()
+        return self.cursor.lastrowid
+
+    def add_company(self, company):
+        request = (
+            "INSERT INTO companies ""(logo, name, sector_id, description, place, founded_at, short_description)"
+            " VALUES (%s, %s, %s, %s, %s, %s, %s)")
+
+        self.cursor.execute(request,
+                            (
+                                company['logo'],
+                                company['name'],
+                                company['sector_id'],
+                                company['description'],
+                                company['place'],
+                                company['founded_at'],
+                                company['short_description']
                             ))
 
         self.cnx.commit()

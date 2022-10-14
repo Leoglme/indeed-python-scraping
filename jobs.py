@@ -219,5 +219,3 @@ class IndeedJobs:
 c = database.get_places()
 indeed_jobs = IndeedJobs(c)
 indeed_jobs.run()
-
-# company_id
