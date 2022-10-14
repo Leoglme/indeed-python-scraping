@@ -187,7 +187,7 @@ class Database:
                                 job['qualifications'],
                                 job['place'],
                                 job['indeed_id'],
-                                5
+                                job['company_id']
                             ))
 
         self.cnx.commit()

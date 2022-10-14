@@ -5,6 +5,7 @@ from termcolor import cprint
 import re
 import time
 from database import Database
+from company import CreateCompany
 
 database = Database()
 
@@ -14,6 +15,7 @@ class IndeedJobs:
     start = 0
     current_page = 0
     number_jobs_added = 0
+    company_id = None
     jobs = []
     agent = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) '
@@ -66,6 +68,10 @@ class IndeedJobs:
             qualifications = self.get_job_qualifications(html_job)
             advantages = self.get_job_advantages(html_job)
             job_types = self.get_job_types(html_job)
+            company_url = self.get_company_url(html_job)
+
+            create_company = CreateCompany(company_url)
+            company_id = create_company.company_id
 
             job = {
                 'title': title,
@@ -74,7 +80,8 @@ class IndeedJobs:
                 'qualifications': qualifications,
                 'salary': salary,
                 'place': place,
-                'indeed_id': indeed_id
+                'indeed_id': indeed_id,
+                'company_id': company_id
             }
 
             self.jobs.append(job)
@@ -160,12 +167,20 @@ class IndeedJobs:
 
     def get_html_details_job(self, indeed_id: str):
         try:
-            # url = f'http://fr.indeed.com/viewjob?jk={indeed_id}'
-            url = f'http://fr.indeed.com/viewjob?jk=c7ec4978f5b1a60a'
+            url = f'http://fr.indeed.com/viewjob?jk={indeed_id}'
             cprint(url, 'magenta')
 
             r = requests.get(url, headers=self.agent)
             return BeautifulSoup(r.content, 'html.parser')
+        except:
+            pass
+
+    @staticmethod
+    def get_company_url(html_job):
+        try:
+            r = html_job.find('div', class_='jobsearch-CompanyInfoContainer')
+            children = r.findChildren("a", recursive=True)
+            return children[0]['href']
         except:
             pass
 

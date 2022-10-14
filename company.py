@@ -17,7 +17,9 @@ class CreateCompany:
 
     def __init__(self, company_url):
         init()
-        self.company_url = company_url
+        self.company_url = company_url.replace('https', 'http')
+        cprint(self.company_url, 'cyan')
+
         company_html = self.get_company_html()
         company_name = self.get_company_name(company_html)
         company = self.database.get_company(company_name)
@@ -46,12 +48,13 @@ class CreateCompany:
                 'short_description': company_short_description
             }
 
-            company_id = self.database.add_company(company)
+            self.company_id = self.database.add_company(company)
 
             if company_website is not None:
-                self.database.add_company_website(company_website, company_id)
+                self.database.add_company_website(company_website, self.company_id)
                 cprint(f'Company {company_name} saved in the database.', 'cyan')
         else:
+            self.company_id = company
             cprint(f'Company {company_name} already exist.', 'red')
 
     @staticmethod
