@@ -1,6 +1,5 @@
 import mysql.connector
 from termcolor import cprint
-from colorama import init
 
 
 class Database:
@@ -8,7 +7,6 @@ class Database:
     cursor = cnx.cursor(buffered=True)
 
     def __init__(self):
-        init()
         pass
 
     def close_connect(self):
@@ -138,6 +136,7 @@ class Database:
             pass
 
     def add_advantage(self, advantage: str):
+        print(advantage)
         res = self.get_advantage(advantage)
         if res is None:
             request = "INSERT INTO advantages ""(label)" "VALUES (%s)"
@@ -146,6 +145,7 @@ class Database:
             self.cnx.commit()
 
     def add_advantage_advertisements(self, advantages: [], job_id: int):
+        print({"advantages": advantages, "job_id": job_id})
         try:
             for advantage in advantages:
                 advantage_ids = self.get_advantage(advantage)
@@ -157,6 +157,7 @@ class Database:
             pass
 
     def add_job_types(self, job_types: [], job_id: int):
+        print(job_types)
         try:
             for job_type in job_types:
                 type_ids = self.get_type(job_type)
@@ -234,7 +235,8 @@ class Database:
             "INSERT INTO companies ""(logo, name, sector_id, description, place, founded_at, short_description)"
             " VALUES (%s, %s, %s, %s, %s, %s, %s)")
 
-        print(company)
+        if company['name'] is not None:
+            company['name'] = company['name'].lower()
 
         self.cursor.execute(request,
                             (

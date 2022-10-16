@@ -3,7 +3,6 @@ import json
 import requests
 from bs4 import BeautifulSoup
 from termcolor import cprint
-from colorama import init
 from database import Database
 
 
@@ -17,7 +16,6 @@ class CreateCompany:
                       'Safari/537.36 Vivaldi/5.3.2679.70.'}
 
     def __init__(self, company_url, company_name):
-        init()
         self.company_url = company_url.replace('https', 'http')
         cprint(company_url, 'cyan')
 

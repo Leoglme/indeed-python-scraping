@@ -10,6 +10,8 @@ from company import CreateCompany
 database = Database()
 
 
+init()
+
 class IndeedJobs:
     sleep = 10
     start = 0
@@ -26,7 +28,6 @@ class IndeedJobs:
         # database.delete_all_job()
         self.stop = False
         print('starting...')
-        init()
         self.jobs_indeed_id = database.get_all_job_indeed_id()
         self.url = None
         self.cities = cities
@@ -205,7 +206,7 @@ class IndeedJobs:
     def get_company_name(html_job):
         try:
             r = html_job.find_all('div', class_='jobsearch-InlineCompanyRating-companyHeader')
-            return r[1].text.replace(' ', '-')
+            return re.sub('\s+',' ',r[1].text).replace(' ', '-')
         except:
             pass
 
