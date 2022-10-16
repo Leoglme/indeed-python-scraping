@@ -27,6 +27,7 @@ class Database:
         return places
 
     def delete_advantage_advertisements(self):
+
         self.cursor.execute("TRUNCATE TABLE advantage_advertisements")
 
     def delete_sectors(self):
@@ -40,6 +41,7 @@ class Database:
             cprint(f'Delete sector {id[0]}', 'red')
 
     def delete_companies(self):
+        self.delete_social_companies()
         self.cursor.execute("SELECT id FROM companies")
         ids = self.cursor.fetchall()
 
@@ -48,7 +50,6 @@ class Database:
             self.cursor.execute(request, id)
             self.cnx.commit()
             cprint(f'Delete company {id[0]}', 'red')
-        self.delete_social_companies()
         self.delete_sectors()
 
     def delete_social_companies(self):
@@ -65,6 +66,7 @@ class Database:
         self.cursor.execute("TRUNCATE TABLE job_types")
 
     def delete_all_job(self):
+        self.delete_advantage_advertisements()
         self.cursor.execute("SELECT id FROM advertisements")
         ids = self.cursor.fetchall()
 
@@ -73,7 +75,6 @@ class Database:
             self.cursor.execute(request, id)
             self.cnx.commit()
             cprint(f'Delete advertisement {id[0]}', 'red')
-        self.delete_advantage_advertisements()
         self.delete_job_types()
         self.delete_companies()
 
@@ -231,23 +232,27 @@ class Database:
         return self.cursor.lastrowid
 
     def add_company(self, company):
-        request = (
-            "INSERT INTO companies ""(logo, name, sector_id, description, place, founded_at, short_description)"
-            " VALUES (%s, %s, %s, %s, %s, %s, %s)")
+        try:
+            request = (
+                "INSERT INTO companies ""(logo, name, sector_id, description, place, founded_at, short_description)"
+                " VALUES (%s, %s, %s, %s, %s, %s, %s)")
 
-        if company['name'] is not None:
-            company['name'] = company['name'].lower()
+            if company['name'] is not None:
+                company['name'] = company['name'].lower()
 
-        self.cursor.execute(request,
-                            (
-                                company['logo'],
-                                company['name'],
-                                company['sector_id'],
-                                company['description'],
-                                company['place'],
-                                company['founded_at'],
-                                company['short_description']
-                            ))
+            self.cursor.execute(request,
+                                (
+                                    company['logo'],
+                                    company['name'],
+                                    company['sector_id'],
+                                    company['description'],
+                                    company['place'],
+                                    company['founded_at'],
+                                    company['short_description']
+                                ))
 
-        self.cnx.commit()
-        return self.cursor.lastrowid
+            self.cnx.commit()
+            return self.cursor.lastrowid
+        except:
+            pass
+
