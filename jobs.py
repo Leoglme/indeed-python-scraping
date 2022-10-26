@@ -29,11 +29,9 @@ class IndeedJobs:
     def __init__(self, cities: []):
 
         random_cities = random.sample(cities, self.number_location)
-        database.delete_all_job()
+        # database.delete_all_job()
         self.stop = False
         cprint('starting...', 'green')
-        for city in random_cities:
-            cprint('search jobs for location: ' + city, 'green')
         self.jobs_indeed_id = database.get_all_job_indeed_id()
         self.url = None
         self.cities = random_cities
@@ -43,6 +41,8 @@ class IndeedJobs:
         self.start = 0
 
     def run(self):
+        for city in self.cities:
+            cprint('search jobs for location: ' + city, 'green')
         for city in self.cities:
             self.jobs_indeed_id = database.get_all_job_indeed_id()
             self.number_jobs_added = 0
