@@ -6,6 +6,7 @@ import re
 import time
 from database import Database
 from company import CreateCompany
+import random
 
 database = Database()
 
@@ -13,7 +14,8 @@ database = Database()
 init()
 
 class IndeedJobs:
-    sleep = 10
+    sleep = 60
+    number_location = 2
     start = 0
     current_page = 0
     number_jobs_added = 0
@@ -25,12 +27,16 @@ class IndeedJobs:
                       'Safari/537.36 Vivaldi/5.3.2679.70.'}
 
     def __init__(self, cities: []):
-        # database.delete_all_job()
+
+        random_cities = random.sample(cities, self.number_location)
+        database.delete_all_job()
         self.stop = False
-        print('starting...')
+        cprint('starting...', 'green')
+        for city in random_cities:
+            cprint('search jobs for location: ' + city, 'green')
         self.jobs_indeed_id = database.get_all_job_indeed_id()
         self.url = None
-        self.cities = cities
+        self.cities = random_cities
 
     def stop_search(self):
         self.stop = True
@@ -258,6 +264,8 @@ class IndeedJobs:
             cprint(f'Id {job["indeed_id"]} already exist', 'red')
 
 
-c = database.get_places()
-indeed_jobs = IndeedJobs(c)
+
+
+cities = database.get_places()
+indeed_jobs = IndeedJobs(cities)
 indeed_jobs.run()
