@@ -15,7 +15,7 @@ init()
 
 class IndeedJobs:
     sleep = 60
-    number_location = 2
+    turn_location_number = 2
     start = 0
     current_page = 0
     number_jobs_added = 0
@@ -27,23 +27,23 @@ class IndeedJobs:
                       'Safari/537.36 Vivaldi/5.3.2679.70.'}
 
     def __init__(self, cities: []):
-
-        random_cities = random.sample(cities, self.number_location)
         # database.delete_all_job()
         self.stop = False
         cprint('starting...', 'green')
         self.jobs_indeed_id = database.get_all_job_indeed_id()
         self.url = None
-        self.cities = random_cities
+        self.cities = cities
 
     def stop_search(self):
         self.stop = True
         self.start = 0
 
     def run(self):
-        for city in self.cities:
+        random_cities = random.sample(self.cities, self.turn_location_number)
+
+        for city in random_cities:
             cprint('search jobs for location: ' + city, 'green')
-        for city in self.cities:
+        for city in random_cities:
             self.jobs_indeed_id = database.get_all_job_indeed_id()
             self.number_jobs_added = 0
             self.stop = False
