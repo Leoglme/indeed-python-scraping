@@ -14,7 +14,7 @@ database = Database()
 init()
 
 class IndeedJobs:
-    sleep = 60
+    sleep = 10
     turn_location_number = 2
     start = 0
     current_page = 0

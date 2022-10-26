@@ -17,6 +17,7 @@ class CreateCompany:
 
     def __init__(self, company_url, company_name):
         self.company_url = company_url.replace('https', 'http')
+        company_name = company_name.replace('.', '')
         cprint(company_url, 'cyan')
 
         company = self.database.get_company(company_name)
