@@ -56,6 +56,8 @@ class IndeedJobs:
     def read_pages(self, city: str):
         html_jobs = self.get_html_jobs(city)
 
+        print(html_jobs)
+
         job_cards = self.get_job_cards(html_jobs)
         self.current_page = self.get_current_page(html_jobs)
         max_results = self.get_max_results(html_jobs)
