@@ -24,6 +24,3 @@ class IndeedJobSuggestions:
     def save_job_suggestions(self, suggestions):
         for suggestion in suggestions:
             self.database.add_job_suggestion(suggestion["suggestion"], suggestion["payload"]["score"])
-
-
-indeed_job_suggestions = IndeedJobSuggestions()

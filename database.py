@@ -1,9 +1,14 @@
 import mysql.connector
 from termcolor import cprint
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 class Database:
-    cnx = mysql.connector.connect(user='root', password="", database='job_board')
+    cnx = mysql.connector.connect(host=os.getenv('MYSQL_HOST'), user=os.getenv('MYSQL_USER'),
+                                  password=os.getenv('MYSQL_PASSWORD'), database=os.getenv('MYSQL_DB_NAME'))
     cursor = cnx.cursor(buffered=True)
 
     def __init__(self):
@@ -255,4 +260,3 @@ class Database:
             return self.cursor.lastrowid
         except:
             pass
-

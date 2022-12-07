@@ -30,6 +30,3 @@ class IndeedJobTypes:
     def save_types(self, types):
         for type in types:
             self.database.add_job_type(type.strip())
-
-
-indeed_job_types = IndeedJobTypes()

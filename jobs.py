@@ -10,8 +10,8 @@ import random
 
 database = Database()
 
-
 init()
+
 
 class IndeedJobs:
     sleep = 10
@@ -212,7 +212,7 @@ class IndeedJobs:
     def get_company_name(html_job):
         try:
             r = html_job.find_all('div', class_='jobsearch-InlineCompanyRating-companyHeader')
-            return re.sub('\s+',' ',r[1].text).replace(' ', '-')
+            return re.sub('\s+', ' ', r[1].text).replace(' ', '-')
         except:
             pass
 
@@ -262,8 +262,6 @@ class IndeedJobs:
             return database.add_job(job)
         except:
             cprint(f'Id {job["indeed_id"]} already exist', 'red')
-
-
 
 
 cities = database.get_places()

@@ -19,7 +19,7 @@
    ```sh
     $ git clone https://github.com/Leoglme/indeed-python-scraping
     $ cd indeed-python-scraping
-    $ pip install time requests bs4 re termcolor colorama
+    $ pip install time requests bs4 re termcolor colorama python-dotenv
    ```
 
 ## Features
